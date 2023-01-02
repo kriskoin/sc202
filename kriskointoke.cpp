@@ -42,5 +42,17 @@ CONTRACT kriskointoke : public contract {
             
         }
 
+        ACTION withdraw(name from,
+                     name to, 
+                     eosio::asset quantity, 
+                     std::string memo){
+            action(
+                permission_level {get_self(),"active"_n},
+                "eosio.token"_n,
+                "transfer"_n,
+                std::make_tuple(from,to,quantity,std::string("send u back"))
+            ).send();
+        }
+
 };
 
