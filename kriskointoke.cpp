@@ -1,10 +1,33 @@
 #include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
+#include <eosio/singleton.hpp>
 
 using namespace eosio;
+
+
+    TABLE token_settings {
+        std::string  token_symbol;
+        uint8_t withdraw_timespan;//in minutes
+    } ;
+
+    using singleton_settings = eosio::singleton<"tok.settings"_n,token_settings> ;
+    
+
 CONTRACT kriskointoke : public contract {
-     using contract::contract;
     public:
+        using contract::contract;
+
+        kriskointoke(
+            eosio::name receiver,
+            eosio::name code,
+            datastream < const char *> ds
+        ):
+        contract(receiver,code,ds),
+        settings_instance(receiver,receiver.value)
+        {}
+
+        singleton_settings settings_instance;
+        
         TABLE balances {
             name acct;
             std::string sym;
@@ -42,10 +65,15 @@ CONTRACT kriskointoke : public contract {
             
         }
 
+        
+
         ACTION withdraw(name from,
                      name to, 
                      eosio::asset quantity, 
                      std::string memo){
+
+            
+
             action(
                 permission_level {get_self(),"active"_n},
                 "eosio.token"_n,
